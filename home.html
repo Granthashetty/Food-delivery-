@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteBites - Home</title>
+    <style>
+        :root { --primary-orange: #ff8c32; --bg-light: #f8f9fa; --text-main: #333; --text-muted: #777; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        .phone-mockup { width: 375px; height: 780px; background: white; border-radius: 40px; border: 8px solid #222; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+        .scroll-area { overflow-y: auto; flex-grow: 1; scrollbar-width: none; }
+        .scroll-area::-webkit-scrollbar { display: none; }
+
+        header { padding: 20px 15px; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #f1f1f1; }
+        .search-container { display: flex; align-items: center; background: #f1f1f1; padding: 10px 15px; border-radius: 12px; flex-grow: 1; }
+        .search-container input { border: none; background: transparent; outline: none; margin-left: 10px; width: 100%; }
+        .profile-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 10px; cursor: pointer; border: 2px solid var(--primary-orange); }
+        
+        .categories { display: flex; overflow-x: auto; padding: 15px; gap: 15px; scrollbar-width: none; border-bottom: 1px solid #eee; }
+        .category-item { text-align: center; flex-shrink: 0; cursor: pointer; transition: transform 0.2s; }
+        .category-item:active { transform: scale(0.9); }
+        .category-item img { width: 60px; height: 60px; border-radius: 50%; background: #fff3e0; padding: 8px; border: 1px solid #eee; }
+        .category-item p { font-size: 11px; margin-top: 5px; font-weight: 600; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+        .section-title { font-size: 18px; font-weight: 700; }
+        .reset-filter { font-size: 12px; color: var(--primary-orange); cursor: pointer; font-weight: bold; }
+
+        .restaurant-list { padding: 0 15px 30px 15px; }
+        .res-card { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
+        .res-card:active { transform: scale(0.98); }
+        .res-image { width: 100%; height: 160px; object-fit: cover; }
+        .res-details { padding: 12px; }
+        .res-name { font-size: 16px; font-weight: 700; }
+        .res-stats { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f1f1; font-size: 12px; color: #666; }
+
+        #menu-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; display: none; flex-direction: column; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .menu-header { padding: 20px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .close-menu { font-size: 24px; cursor: pointer; margin-right: 15px; color: var(--primary-orange); }
+        .menu-items-list { padding: 15px; overflow-y: auto; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+        .item-info h4 { margin-bottom: 5px; }
+        .item-info p { font-size: 14px; color: var(--primary-orange); font-weight: 700; }
+        .add-btn { background: #fff; border: 1px solid var(--primary-orange); color: var(--primary-orange); padding: 5px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="phone-mockup">
+        <header>
+            <div style="display: flex; align-items: center;">
+                <div class="search-container"><span>🔍</span><input type="text" placeholder='Search dishes...'></div>
+                <img src="https://i.pravatar.cc/150?img=11" class="profile-img" onclick="window.location.href='profile.html'">
+            </div>
+        </header>
+        
+        <div class="scroll-area">
+            <div class="categories" id="foodCategories"></div>
+            <div class="section-header">
+                <h2 class="section-title" id="list-title">Popular Restaurants</h2>
+                <span class="reset-filter" id="reset-btn" style="display:none" onclick="renderRestaurants()">Show All</span>
+            </div>
+            <div class="restaurant-list" id="restaurantList"></div>
+        </div>
+
+        <div id="menu-view">
+            <div class="menu-header">
+                <span class="close-menu" onclick="closeMenu()">←</span>
+                <h2 id="menu-res-name">Restaurant Menu</h2>
+            </div>
+            <div class="menu-items-list" id="menuItems"></div>
+        </div>
+    </div>
+
+    <script>
+        const foodItems = [
+            { name: 'Pizza', img: 'https://cdn-icons-png.flaticon.com/128/3595/3595455.png' },
+            { name: 'Burger', img: 'https://cdn-icons-png.flaticon.com/128/877/877951.png' },
+            { name: 'Biryani', img: 'https://cdn-icons-png.flaticon.com/128/1895/1895683.png' },
+            { name: 'Sushi', img: 'https://cdn-icons-png.flaticon.com/128/2252/2252439.png' },
+            { name: 'Dosa', img: 'https://cdn-icons-png.flaticon.com/128/8249/8249339.png' }
+        ];
+
+        const restaurants = [
+            { id: 0, name: "Spice Empire", rating: "4.5 ★", delivery: "25 mins", price: "₹400 for two", img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400", menu: [{n: "Paneer Tikka Biryani", p: 280}, {n: "Butter Chicken", p: 350}, {n: "Veg Salad", p: 120}] },
+            { id: 1, name: "Pizza Palace", rating: "4.2 ★", delivery: "30 mins", price: "₹600 for two", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400", menu: [{n: "Margherita Pizza", p: 199}, {n: "Farmhouse Pizza", p: 399}] }
+        ];
+
+        function init() {
+            const catDiv = document.getElementById('foodCategories');
+            foodItems.forEach(item => {
+                catDiv.innerHTML += `
+                    <div class="category-item" onclick="filterByFood('${item.name}')">
+                        <img src="${item.img}">
+                        <p>${item.name}</p>
+                    </div>`;
+            });
+            renderRestaurants();
+        }
+
+        function renderRestaurants(filteredList = restaurants, title = "Popular Restaurants") {
+            const resDiv = document.getElementById('restaurantList');
+            const titleElem = document.getElementById('list-title');
+            const resetBtn = document.getElementById('reset-btn');
+            resDiv.innerHTML = '';
+            titleElem.innerText = title;
+            resetBtn.style.display = title === "Popular Restaurants" ? "none" : "block";
+
+            filteredList.forEach((r) => {
+                resDiv.innerHTML += `
+                    <div class="res-card" onclick="openMenu(${r.id})">
+                        <img src="${r.img}" class="res-image">
+                        <div class="res-details">
+                            <p class="res-name">${r.name}</p>
+                            <div class="res-stats">
+                                <span style="color:#2d8a39; font-weight:bold">${r.rating}</span>
+                                <span>${r.delivery}</span>
+                                <span>${r.price}</span>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function openMenu(id) {
+            const res = restaurants.find(r => r.id === id);
+            document.getElementById('menu-res-name').innerText = res.name;
+            const menuList = document.getElementById('menuItems');
+            menuList.innerHTML = '';
+            
+            res.menu.forEach(item => {
+                menuList.innerHTML += `
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h4>${item.n}</h4>
+                            <p>₹${item.p}</p>
+                        </div>
+                        <button class="add-btn" onclick="orderItem('${item.n}', ${item.p})">ADD</button>
+                    </div>`;
+            });
+            document.getElementById('menu-view').style.display = 'flex';
+        }
+
+        function closeMenu() { document.getElementById('menu-view').style.display = 'none'; }
+
+        // FUNCTION TO SAVE ORDER TO PROFILE
+        function orderItem(itemName, itemPrice) {
+            const existingOrders = JSON.parse(localStorage.getItem('byteBitesOrders')) || [];
+            const newOrder = {
+                name: itemName,
+                price: "₹" + itemPrice,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            existingOrders.unshift(newOrder); 
+            localStorage.setItem('byteBitesOrders', JSON.stringify(existingOrders));
+            alert(itemName + " added to your orders!");
+        }
+
+        init();
+    </script>
+</body>
+</html>

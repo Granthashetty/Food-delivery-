@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteBites - Login</title>
+    <style>
+        :root { --primary-orange: #ff8c32; --secondary-red: #e53935; --text-dark: #333; --text-grey: #888; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #1a1a1a; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .phone-mockup { width: 360px; height: 740px; background: white; border-radius: 40px; border: 8px solid #222; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .screen { display: none; height: 100%; width: 100%; animation: fadeIn 0.5s ease; }
+        .active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .bg-illustration { position: relative; height: 320px; width: 100%; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #fff3e0 0%, #ffffff 70%); }
+        .logo-small { font-size: 2.5rem; font-weight: 800; z-index: 5; }
+        .content-area { padding: 0 25px; flex-grow: 1; }
+        .tagline-main { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 25px; color: black; }
+        .sub-text { font-size: 1.1rem; color: var(--text-grey); margin-bottom: 15px; }
+        .phone-input-container { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 10px; padding: 12px 15px; margin-bottom: 20px; gap: 10px; }
+        .flag-icon { width: 24px; }
+        .phone-input-container input { border: none; outline: none; font-size: 1rem; width: 100%; }
+        .btn-continue { background: #f7943d; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-size: 1.3rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(247, 148, 61, 0.4); margin-bottom: 25px; }
+        .otp-input { width: 45px; height: 45px; text-align: center; font-size: 1.2rem; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="phone-mockup">
+        <div id="auth-screen" class="screen active">
+            <div class="bg-illustration">
+                <div class="logo-small"><span style="color: var(--primary-orange);">byte</span><span style="color: var(--secondary-red);">bites</span></div>
+            </div>
+            <div class="content-area">
+                <h1 class="tagline-main">India's tastiest food,<br>delivered fast</h1>
+                <p class="sub-text">Log in or sign up</p>
+                <div class="phone-input-container">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" class="flag-icon" alt="IN">
+                    <span>+91</span>
+                    <input type="number" id="phoneBox" placeholder="Enter Phone Number">
+                </div>
+                <button class="btn-continue" onclick="sendOTP()">Continue</button>
+            </div>
+        </div>
+
+        <div id="otp-screen" class="screen">
+            <div class="content-area" style="padding-top: 100px;">
+                <h1 class="tagline-main">Verify OTP</h1>
+                <p class="sub-text">Enter the 4-digit code sent to your phone</p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 30px;">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                </div>
+                <button class="btn-continue" onclick="verifyAndGoHome()">Verify & Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendOTP() {
+            const phone = document.getElementById('phoneBox').value;
+            if(phone.length === 10) {
+                document.getElementById('auth-screen').classList.remove('active');
+                document.getElementById('otp-screen').classList.add('active');
+            } else { alert("Enter a valid 10-digit number"); }
+        }
+        function verifyAndGoHome() { window.location.href = 'home.html'; }
+    </script>
+</body>
+</html>

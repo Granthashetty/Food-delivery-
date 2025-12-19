@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteBites - Profile</title>
+    <style>
+        :root { --primary-orange: #ef8e38; --bg-gray: #f5f5f5; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #1a1a1a; margin: 0; display: flex; justify-content: center; }
+        
+        /* Device Container */
+        .phone-container { width: 375px; background: white; height: 780px; position: relative; border-radius: 40px; border: 8px solid #222; margin: 20px 0; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Headers */
+        .header { display: flex; align-items: center; padding: 20px; border-bottom: 1px solid #eee; background: white; }
+        .back-btn { background: none; border: none; font-size: 24px; color: var(--primary-orange); cursor: pointer; margin-right: 20px; }
+        
+        /* Main Layout */
+        .content-scroll { overflow-y: auto; flex-grow: 1; scrollbar-width: none; }
+        .content-scroll::-webkit-scrollbar { display: none; }
+        
+        /* Profile Components */
+        .profile-card { padding: 20px; display: flex; align-items: center; background: #fff; }
+        .avatar { width: 60px; height: 60px; background: var(--primary-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px; font-size: 20px; }
+        .section-label { background: #f5f5f5; padding: 10px 20px; font-size: 12px; color: #888; font-weight: bold; }
+        .menu-item { padding: 20px; border-bottom: 1px solid #f9f9f9; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .logout-btn { width: 90%; margin: 20px 5%; padding: 15px; background: white; color: #e53935; border: 1px solid #e53935; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        /* Overlay System */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: none; flex-direction: column; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .overlay-content { padding: 20px; overflow-y: auto; }
+        
+        /* Info Card Styling */
+        .info-card { background: #fff3e0; padding: 20px; border-radius: 15px; margin-bottom: 20px; border-left: 5px solid var(--primary-orange); }
+        .info-card h4 { margin-bottom: 10px; color: #333; }
+        .info-card p { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 8px; }
+        
+        /* Form Styling */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; font-weight: bold; }
+        .input-group input, .input-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+        .save-btn { width: 100%; background: var(--primary-orange); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        
+        .order-entry { border-bottom: 1px solid #eee; padding: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="header">
+            <button class="back-btn" onclick="window.location.href='home.html'">←</button>
+            <h2 style="margin:0">My Profile</h2>
+        </div>
+
+        <div class="content-scroll">
+            <div class="profile-card">
+                <div class="avatar">GS</div>
+                <div><h3>Grantha Shetty</h3><p style="color:#888; margin:0">Edit Profile</p></div>
+            </div>
+
+            <div class="section-label">ACCOUNT</div>
+            <div class="menu-item" onclick="viewOrders()"><span>🛍️ Your Orders</span><span>❯</span></div>
+            <div class="menu-item" onclick="openAddressBook()"><span>📍 Address Book</span><span>❯</span></div>
+
+            <div class="section-label">SUPPORT & MORE</div>
+            <div class="menu-item" onclick="openOverlay('help-overlay')"><span>❓ Help & Support</span><span>❯</span></div>
+            <div class="menu-item" onclick="openOverlay('about-overlay')"><span>ℹ️ About Us</span><span>❯</span></div>
+            
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div id="orders-overlay" class="overlay">
+            <div class="header">
+                <button class="back-btn" onclick="closeOverlay('orders-overlay')">←</button>
+                <h2 style="margin:0">Your Orders</h2>
+            </div>
+            <div class="overlay-content" id="orders-list-container"></div>
+        </div>
+
+        <div id="address-overlay" class="overlay">
+            <div class="header">
+                <button class="back-btn" onclick="closeOverlay('address-overlay')">←</button>
+                <h2 style="margin:0">Address Book</h2>
+            </div>
+            <div class="overlay-content">
+                <div class="input-group">
+                    <label>PHONE NUMBER</label>
+                    <input type="tel" id="user-phone" placeholder="Enter 10-digit number">
+                </div>
+                <div class="input-group">
+                    <label>DELIVERY ADDRESS</label>
+                    <textarea id="user-address" rows="4" placeholder="House No, Street, Area..."></textarea>
+                </div>
+                <button class="save-btn" onclick="saveAddress()">Save Details</button>
+            </div>
+        </div>
+
+        <div id="help-overlay" class="overlay">
+             <div class="header">
+                 <button class="back-btn" onclick="closeOverlay('help-overlay')">←</button>
+                 <h2 style="margin:0">Help & Support</h2>
+             </div>
+             <div class="overlay-content">
+                 <div class="info-card">
+                     <h4>Frequently Asked Questions</h4>
+                     <p><strong>Q: How do I track my order?</strong><br>Go to "Your Orders" and click on the active order to see real-time tracking.</p>
+                     <p><strong>Q: What if I receive a wrong item?</strong><br>Contact our support via email immediately with a photo of the bill and items.</p>
+                     <p><strong>Q: Can I schedule a delivery?</strong><br>Yes, you can choose "Schedule for later" during checkout.</p>
+                 </div>
+                 <p style="text-align:center; color:#888; font-size: 13px;">For more help, contact <strong>support@bytebites.in</strong></p>
+             </div>
+        </div>
+
+        <div id="about-overlay" class="overlay">
+             <div class="header">
+                 <button class="back-btn" onclick="closeOverlay('about-overlay')">←</button>
+                 <h2 style="margin:0">About ByteBites</h2>
+             </div>
+             <div class="overlay-content">
+                 <div style="text-align: center; margin-bottom: 20px;">
+                    <div class="avatar" style="margin: 0 auto 10px;">BB</div>
+                    <h3 style="margin:0">ByteBites Food Delivery</h3>
+                    <p style="color:#888">Version 2.5.1 (Stable Build)</p>
+                 </div>
+                 
+                 <div class="info-card">
+                     <h4>Contact Information</h4>
+                     <p><strong>📧 Support Email:</strong> helpdesk@bytebites.com</p>
+                     <p><strong>📞 Helpline:</strong> +91 1800-456-7890</p>
+                     <p><strong>⏰ Operating Hours:</strong> 24/7 Service</p>
+                 </div>
+
+                 <div class="info-card">
+                     <h4>Registered Office</h4>
+                     <p><strong>ByteBites Technologies Pvt Ltd.</strong></p>
+                     <p>Suite 404, Tech Innovation Hub,<br>Electronic City Phase II,<br>Bangalore, Karnataka - 560100</p>
+                 </div>
+
+                 <p style="font-size: 13px; color: #888; text-align: center; padding: 10px;">
+                    © 2025 ByteBites. All rights reserved. Made with ❤️ for foodies.
+                 </p>
+             </div>
+        </div>
+    </div>
+
+    <script>
+        // Core Overlay Management
+        function openOverlay(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Orders Management
+        function viewOrders() {
+            const container = document.getElementById('orders-list-container');
+            const orders = JSON.parse(localStorage.getItem('byteBitesOrders')) || [];
+            openOverlay('orders-overlay');
+            if (orders.length === 0) {
+                container.innerHTML = `<p style="text-align:center; margin-top:50px; color:#888;">No orders found yet!</p>`;
+                return;
+            }
+            container.innerHTML = orders.map(order => `
+                <div class="order-entry">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong style="font-size: 16px;">${order.name}</strong>
+                        <span style="color: #ef8e38; font-weight: bold;">${order.price}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
+                        <span>${order.date}</span>
+                        <span>${order.time}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Address Management
+        function openAddressBook() {
+            const savedPhone = localStorage.getItem('bb_phone') || "";
+            const savedAddress = localStorage.getItem('bb_address') || "";
+            document.getElementById('user-phone').value = savedPhone;
+            document.getElementById('user-address').value = savedAddress;
+            openOverlay('address-overlay');
+        }
+
+        function saveAddress() {
+            const phone = document.getElementById('user-phone').value;
+            const address = document.getElementById('user-address').value;
+            if(phone.length < 10) { alert("Please enter a valid phone number"); return; }
+            localStorage.setItem('bb_phone', phone);
+            localStorage.setItem('bb_address', address);
+            alert("Details Saved to your profile!");
+            closeOverlay('address-overlay');
+        }
+
+        function logout() { if(confirm("Logout from ByteBites?")) window.location.href = 'login.html'; }
+    </script>
+</body>
+</html>
